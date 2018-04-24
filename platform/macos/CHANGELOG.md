@@ -10,6 +10,10 @@
 
 * Added support for aggregate expressions as input values to `MGL_MATCH` expressions. ([#11866](https://github.com/mapbox/mapbox-gl-native/pull/11866))
 
+### Other changes
+
+* Adjusted when and how the camera transition update and finish callbacks are called, fixing recursion bugs. ([#5833](https://github.com/mapbox/mapbox-gl-native/issues/5833), [#11180](https://github.com/mapbox/mapbox-gl-native/issues/11180))
+
 ## 0.7.1
 
 ### Style layers
