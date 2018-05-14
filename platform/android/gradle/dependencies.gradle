@@ -51,6 +51,7 @@ ext {
 
             archLifecycleExtensions : "android.arch.lifecycle:extensions:${versions.archLifecycle}",
             archLifecycleAnnotations: "android.arch.lifecycle:common-java8:${versions.archLifecycle}",
+            archCoreTesting         : "android.arch.core:core-testing:${versions.archLifecycle}",
 
             lost                    : "com.mapzen.android:lost:${versions.lost}",
             gmsLocation             : 'com.google.android.gms:play-services-location:11.0.4',
