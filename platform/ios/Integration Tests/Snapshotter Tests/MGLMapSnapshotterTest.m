@@ -101,7 +101,7 @@ NSString* validAccessToken() {
     [self waitForExpectations:@[expectation] timeout:2.0];
 }
 
-- (void)testMultipleSnapshotters {
+- (void)testMultipleSnapshottersFromBackgroundQueue {
     if (!validAccessToken()) {
         return;
     }
@@ -168,6 +168,52 @@ NSString* validAccessToken() {
     } // end for loop
 
     [self waitForExpectations:@[expectation] timeout:10.0];
+}
+
+- (void)testMultipleSnapshotters {
+    if (!validAccessToken()) {
+        return;
+    }
+
+    NSUInteger numSnapshots = 8;
+    CGSize size = self.mapView.bounds.size;
+
+    XCTestExpectation *expectation = [self expectationWithDescription:@"snapshots"];
+    expectation.expectedFulfillmentCount = numSnapshots;
+    expectation.assertForOverFulfill = YES;
+
+    __weak __typeof__(self) weakself = self;
+
+    for (size_t run = 0; run < numSnapshots; run++) {
+
+        float ratio = (float)run/(float)numSnapshots;
+        float latlon = (ratio*30.0) + ((1-ratio)*40.0);
+        CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(latlon, latlon);
+
+        MGLMapSnapshotter *snapshotter = snapshotterWithCoordinates(coord, size);
+        XCTAssertNotNil(snapshotter);
+
+        [snapshotter startWithCompletionHandler:^(MGLMapSnapshot * _Nullable snapshot, NSError * _Nullable error) {
+
+            // This should be the main queue
+            __typeof__(self) strongself = weakself;
+
+            MGLTestAssertNotNil(strongself, strongself);
+
+            MGLTestAssertNotNil(strongself, snapshot);
+            MGLTestAssertNotNil(strongself, snapshot.image);
+            MGLTestAssertNil(strongself, error, @"Snapshot should not error with: %@", error);
+
+            // Change this back to XCTAttachmentLifetimeDeleteOnSuccess when we're sure this
+            // test is passing.
+            XCTAttachment *attachment = [XCTAttachment attachmentWithImage:snapshot.image];
+            attachment.lifetime = XCTAttachmentLifetimeKeepAlways;
+            [strongself addAttachment:attachment];
+            [expectation fulfill];
+        }];
+    } // end for loop
+
+    [self waitForExpectations:@[expectation] timeout:20.0];
 }
 
 @end
