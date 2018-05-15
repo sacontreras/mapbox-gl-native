@@ -4,6 +4,9 @@
 #define MGLTestFailWithSelf(myself, ...) \
     _XCTPrimitiveFail(myself, __VA_ARGS__)
 
+#define MGLTestAssert(myself, expression, ...) \
+    _XCTPrimitiveAssertTrue(myself, expression, @#expression, __VA_ARGS__)
+
 #define MGLTestAssertNil(myself, expression, ...) \
     _XCTPrimitiveAssertNil(myself, expression, @#expression, __VA_ARGS__)
 

@@ -108,6 +108,11 @@ const CGFloat MGLSnapshotterMinimumPixelSize = 64;
 
 - (void)startWithQueue:(dispatch_queue_t)queue completionHandler:(MGLMapSnapshotCompletionHandler)completion
 {
+    if (!mbgl::Scheduler::GetCurrent()) {
+        [NSException raise:NSInvalidArgumentException
+                    format:@"startWithQueue:completionHandler: should be called from the main thread"];
+    }
+
     if ([self isLoading]) {
         [NSException raise:NSInternalInconsistencyException
                     format:@"Already started this snapshotter."];
