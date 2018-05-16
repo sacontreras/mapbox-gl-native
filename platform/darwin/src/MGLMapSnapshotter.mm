@@ -150,7 +150,7 @@ const CGFloat MGLSnapshotterMinimumPixelSize = 64;
 #endif
             [strongSelf drawAttributedSnapshot:attributions snapshotImage:mglImage pointForFn:pointForFn queue:queue completionHandler:completion];
         }
-        _snapshotCallback = NULL;
+        strongSelf->_snapshotCallback = NULL;
     });
 
     // Launches snapshot on background Thread owned by mbglMapSnapshotter

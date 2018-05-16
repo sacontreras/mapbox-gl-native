@@ -194,11 +194,17 @@ NSString* validAccessToken() {
     for (size_t run = 0; run < numSnapshots; run++) {
 
         float ratio = (float)run/(float)numSnapshots;
-        float latlon = (ratio*30.0) + ((1-ratio)*40.0);
-        CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(latlon, latlon);
+        float lon = (ratio*120.0) + ((1.0-ratio)*54.0);
+        CLLocationCoordinate2D coord = CLLocationCoordinate2DMake(57.0, lon);
 
-        MGLMapSnapshotter *snapshotter = snapshotterWithCoordinates(coord, size);
-        XCTAssertNotNil(snapshotter);
+        __block MGLMapSnapshotter *snapshotter;
+
+        // Allocate from an autorelease pool here, to avoid having
+        // snapshotter retained for longer than we'd like to test.
+        @autoreleasepool {
+            snapshotter = snapshotterWithCoordinates(coord, size);
+            XCTAssertNotNil(snapshotter);
+        }
 
         [snapshotter startWithCompletionHandler:^(MGLMapSnapshot * _Nullable snapshot, NSError * _Nullable error) {
 
@@ -216,6 +222,13 @@ NSString* validAccessToken() {
             XCTAttachment *attachment = [XCTAttachment attachmentWithImage:snapshot.image];
             attachment.lifetime = XCTAttachmentLifetimeKeepAlways;
             [strongself addAttachment:attachment];
+
+            // Dealloc the snapshotter (by having this line in the block, we
+            // also retained the snapshotter. Setting to nil should release, as
+            // this block should be the only thing retaining it (since it was
+            // allocated from the above autorelease pool)
+            snapshotter = nil;
+
             [expectation fulfill];
         }];
     } // end for loop
